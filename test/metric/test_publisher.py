@@ -1,9 +1,7 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
-import pytest
 from mock import patch, MagicMock
 import time
-import json
 
 def create_default_metric_datum():
     return {

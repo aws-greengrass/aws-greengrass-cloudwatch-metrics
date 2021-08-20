@@ -1,10 +1,7 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 import importlib
-import pytest
-import json
-from mock import patch, MagicMock, Mock
-import os
+from mock import patch, MagicMock
 
 DEFAULT_NAMESPACE = 'Greengrass'
 DEFAULT_METRIC_NAME = 'Count'

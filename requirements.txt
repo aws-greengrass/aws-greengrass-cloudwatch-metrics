@@ -1,2 +1,3 @@
 awsiotsdk
 boto3
+mock
