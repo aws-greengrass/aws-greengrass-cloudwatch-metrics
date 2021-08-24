@@ -2,6 +2,7 @@
 
 import importlib
 from mock import patch, MagicMock
+from src import utils
 
 DEFAULT_NAMESPACE = 'Greengrass'
 DEFAULT_METRIC_NAME = 'Count'
@@ -17,7 +18,17 @@ def get_sample_config():
         'MaxMetricsToRetain' : '5000',
         'InputTopic' : 'sample/put',
         'OutputTopic' : 'sample/status',
-        'PubSubToIoTCore' : 'False'
+        'PubSubToIoTCore' : 'True'
+    }
+
+def get_empty_values_config():
+    return {
+        'PublishRegion' : '',
+        'PublishInterval' : '',
+        'MaxMetricsToRetain' : '',
+        'InputTopic' : '',
+        'OutputTopic' : '',
+        'PubSubToIoTCore' : ''
     }
 
 def create_valid_request_with_all_fields():
@@ -53,7 +64,6 @@ class TestHandler(object):
         self.mock_ipc.subscribe_to_pubsub_topic.return_value = True
         self.mock_ipc.subscribe_to_iot_topic.return_value = True
         self.mock_ipc_class.return_value = self.mock_ipc
-        print("setup done")
 
 
     def teardown_method(self, method):
@@ -73,20 +83,54 @@ class TestHandler(object):
         assert app.INPUT_TOPIC == sample_config['InputTopic']
         assert app.OUTPUT_TOPIC == sample_config['OutputTopic']
         assert app.PUBSUB_TO_IOT_CORE == sample_config['PubSubToIoTCore']
-        assert app.pubsub_to_iot_core == False
+        assert app.pubsub_to_iot_core == True
 
     def test_invalid_config_parameters(self):
         invalid_config = get_sample_config()
         invalid_config['PublishInterval'] = 1000
         invalid_config['MaxMetricsToRetain'] = 1000
         self.mock_ipc.get_configuration.return_value = invalid_config
-
-        valid_config = get_sample_config()
-        valid_config['PublishInterval'] = 900
-        valid_config['MaxMetricsToRetain'] = 2000
         
         import src.cloudwatch_metric_connector as app
         importlib.reload(app)
 
-        assert app.PUBLISH_INTERVAL_SEC == valid_config['PublishInterval']
-        assert app.MAX_METRICS == valid_config['MaxMetricsToRetain']
+        assert app.PUBLISH_INTERVAL_SEC == 900
+        assert app.MAX_METRICS == 2000
+
+        invalid_config['PublishInterval'] = "string 1"
+        invalid_config['MaxMetricsToRetain'] = "string 2"
+        self.mock_ipc.get_configuration.return_value = invalid_config
+
+        import src.cloudwatch_metric_connector as app
+        importlib.reload(app)
+
+        assert app.PUBLISH_INTERVAL_SEC == 20
+        assert app.MAX_METRICS == 5000
+
+    def test_empty_config_values(self):
+        self.mock_ipc.get_configuration.return_value = get_empty_values_config()
+
+        import src.cloudwatch_metric_connector as app
+        importlib.reload(app)
+
+        assert app.PUBLISH_REGION == utils.DEFAULT_PUBLISH_REGION
+        assert app.PUBLISH_INTERVAL_SEC == utils.DEFAULT_PUBLISH_INTERVAL_SEC
+        assert app.MAX_METRICS == utils.DEFAULT_MAX_METRICS
+        assert app.INPUT_TOPIC == utils.DEFAULT_INPUT_TOPIC
+        assert app.OUTPUT_TOPIC == utils.DEFAULT_OUTPUT_TOPIC
+        assert app.PUBSUB_TO_IOT_CORE == utils.DEFAULT_PUBSUB_TO_IOT_CORE
+        assert app.pubsub_to_iot_core == False
+
+    def test_missing_keys_config(self):
+        self.mock_ipc.get_configuration.return_value = {}
+
+        import src.cloudwatch_metric_connector as app
+        importlib.reload(app)
+
+        assert app.PUBLISH_REGION == utils.DEFAULT_PUBLISH_REGION
+        assert app.PUBLISH_INTERVAL_SEC == utils.DEFAULT_PUBLISH_INTERVAL_SEC
+        assert app.MAX_METRICS == utils.DEFAULT_MAX_METRICS
+        assert app.INPUT_TOPIC == utils.DEFAULT_INPUT_TOPIC
+        assert app.OUTPUT_TOPIC == utils.DEFAULT_OUTPUT_TOPIC
+        assert app.PUBSUB_TO_IOT_CORE == utils.DEFAULT_PUBSUB_TO_IOT_CORE
+        assert app.pubsub_to_iot_core == False

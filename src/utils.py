@@ -1,16 +1,32 @@
 import logging
 import sys
+import os
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
+PUBLISH_REGION = 'PublishRegion'
+DEFAULT_PUBLISH_REGION = "us-east-1"
 
+PUBLISH_INTERVAL_SEC = 'PublishInterval'
+DEFAULT_PUBLISH_INTERVAL_SEC = 20
 MAX_PUBLISH_INTERVAL_SEC = 900
+
+MAX_METRICS = 'MaxMetricsToRetain'
+DEFAULT_MAX_METRICS = 5000
 MIN_MAX_METRICS = 2000
+
+INPUT_TOPIC = 'InputTopic'
 DEFAULT_INPUT_TOPIC = "cloudwatch/metric/put"
+OUTPUT_TOPIC = 'OutputTopic'
 DEFAULT_OUTPUT_TOPIC = "cloudwatch/metric/status"
+
+PUBSUB_TO_IOT_CORE = 'PubSubToIoTCore'
+DEFAULT_PUBSUB_TO_IOT_CORE = 'False'
+
+GG_CORE_NAME = os.environ.get("AWS_IOT_THING_NAME")
 
 RESPONSE = "response"
 RESPONSE_FIELD_RID = "id"

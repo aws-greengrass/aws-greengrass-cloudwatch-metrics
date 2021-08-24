@@ -128,14 +128,6 @@ class IPCUtils:
             logger.info('Exception while subscribing to IoT core topic: ' + topic)
             raise e
 
-        # Keep the thread alive, or the process will exit.
-        try:
-            while True:
-                time.sleep(10)
-        except InterruptedError:
-            logger.info('Subscribe interrupted.')
-
-
 
 # Get the ipc client
 try:
