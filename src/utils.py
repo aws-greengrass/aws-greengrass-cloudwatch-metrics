@@ -1,6 +1,9 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
-import sys
 import os
+import sys
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)

@@ -1,20 +1,17 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 import json
-import os
 import re
 from threading import Thread
-from time import sleep, time
 
 import awsiot.greengrasscoreipc.client as client
 from awsiot.greengrasscoreipc.model import (IoTCoreMessage,
                                             SubscriptionResponseMessage)
 
-from src import ipc_utils
-from src import utils
+from src import ipc_utils, utils
 from src.metric.manager import MetricsManager
 from src.request import PutMetricRequest
-
 
 ipc = ipc_utils.IPCUtils()
 config = ipc.get_configuration()
@@ -26,7 +23,7 @@ if utils.PUBLISH_REGION in config and config[utils.PUBLISH_REGION] != "":
     PUBLISH_REGION = config[utils.PUBLISH_REGION]
 else:
     logger.info("Using default PublishRegion: {}"
-        .format(utils.DEFAULT_PUBLISH_REGION))
+                .format(utils.DEFAULT_PUBLISH_REGION))
     PUBLISH_REGION = utils.DEFAULT_PUBLISH_REGION
 
 if utils.PUBLISH_INTERVAL_SEC in config:
@@ -34,17 +31,17 @@ if utils.PUBLISH_INTERVAL_SEC in config:
         publish_interval = int(config[utils.PUBLISH_INTERVAL_SEC])
     except (ValueError, TypeError):
         logger.info("Invalid PublishInterval type. Using the default PublishInterval value: {}"
-            .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
+                    .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
         publish_interval = utils.DEFAULT_PUBLISH_INTERVAL_SEC
 
     if publish_interval > utils.MAX_PUBLISH_INTERVAL_SEC:
         logger.info("PublishInterval can not be more than {} seconds, setting it to max value"
-            .format(utils.MAX_PUBLISH_INTERVAL_SEC))
+                    .format(utils.MAX_PUBLISH_INTERVAL_SEC))
         publish_interval = utils.MAX_PUBLISH_INTERVAL_SEC
     PUBLISH_INTERVAL_SEC = publish_interval
 else:
     logger.info("Using the default PublishInterval value: {}"
-        .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
+                .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
     PUBLISH_INTERVAL_SEC = utils.DEFAULT_PUBLISH_INTERVAL_SEC
 
 if utils.MAX_METRICS in config:
@@ -52,62 +49,65 @@ if utils.MAX_METRICS in config:
         max_metrics = int(config[utils.MAX_METRICS])
     except (ValueError, TypeError):
         logger.info("Invalid MaxMetricsToRetain type. Using the default MaxMetricsToRetain value: {}"
-            .format(utils.DEFAULT_MAX_METRICS))
+                    .format(utils.DEFAULT_MAX_METRICS))
         max_metrics = utils.DEFAULT_MAX_METRICS
 
     if max_metrics < utils.MIN_MAX_METRICS:
         logger.info("MaxMetricsToRetain can not be less than {} metrics, setting it to least value"
-            .format(utils.MIN_MAX_METRICS))
+                    .format(utils.MIN_MAX_METRICS))
         max_metrics = utils.MIN_MAX_METRICS
     MAX_METRICS = max_metrics
 else:
     logger.info("Using the default MaxMetricsToRetain value: {}"
-        .format(utils.DEFAULT_MAX_METRICS))
+                .format(utils.DEFAULT_MAX_METRICS))
     MAX_METRICS = utils.DEFAULT_MAX_METRICS
 
 if utils.INPUT_TOPIC in config and config[utils.INPUT_TOPIC] != "":
     INPUT_TOPIC = config[utils.INPUT_TOPIC]
 else:
     logger.info("Using default InputTopic: {}"
-        .format(utils.DEFAULT_INPUT_TOPIC))
+                .format(utils.DEFAULT_INPUT_TOPIC))
     INPUT_TOPIC = utils.DEFAULT_INPUT_TOPIC
 
 if utils.OUTPUT_TOPIC in config and config[utils.OUTPUT_TOPIC] != "":
     OUTPUT_TOPIC = config[utils.OUTPUT_TOPIC]
 else:
     logger.info("Using default OutputTopic: {}"
-        .format(utils.DEFAULT_OUTPUT_TOPIC))
+                .format(utils.DEFAULT_OUTPUT_TOPIC))
     OUTPUT_TOPIC = utils.DEFAULT_OUTPUT_TOPIC
 
 if utils.PUBSUB_TO_IOT_CORE in config and config[utils.PUBSUB_TO_IOT_CORE] != "":
     PUBSUB_TO_IOT_CORE = config[utils.PUBSUB_TO_IOT_CORE]
 else:
     logger.info("Using default PubSubToIoTCore: {}"
-        .format(utils.DEFAULT_PUBSUB_TO_IOT_CORE))
+                .format(utils.DEFAULT_PUBSUB_TO_IOT_CORE))
     PUBSUB_TO_IOT_CORE = utils.DEFAULT_PUBSUB_TO_IOT_CORE
 
 pubsub_to_iot_core = False
 if re.match(r'true', str(PUBSUB_TO_IOT_CORE), flags=re.IGNORECASE):
     pubsub_to_iot_core = True
 
-metrics_manager = MetricsManager(PUBLISH_REGION, PUBLISH_INTERVAL_SEC, MAX_METRICS)
+metrics_manager = MetricsManager(
+    PUBLISH_REGION, PUBLISH_INTERVAL_SEC, MAX_METRICS)
+
 
 def main():
-    
+
     # Subscribe to IoT Core topic
     if pubsub_to_iot_core:
         ipc.subscribe_to_iot_topic(INPUT_TOPIC, IoTCoreStreamHandler())
-    
+
     # Subscribe to local Pub Sub topic
     ipc.subscribe_to_pubsub_topic(INPUT_TOPIC, PubSubStreamHandler())
 
 
-
 def put_metrics(metric_request):
     metric_request.add_dimension('coreName', utils.GG_CORE_NAME)
-    metrics_manager.add_metric(metric_request.namespace, metric_request.metric_datum)
+    metrics_manager.add_metric(
+        metric_request.namespace, metric_request.metric_datum)
 
-class PubSubStreamHandler(client.SubscribeToIoTCoreStreamHandler):
+
+class PubSubStreamHandler(client.SubscribeToTopicStreamHandler):
     def __init__(self):
         super().__init__()
 
@@ -119,7 +119,8 @@ class PubSubStreamHandler(client.SubscribeToIoTCoreStreamHandler):
             metric_request = PutMetricRequest(message)
             put_metrics(metric_request)
         except Exception as e:
-            response = utils.generate_error_response(str(e.__class__), str(e), "")
+            response = utils.generate_error_response(
+                str(e.__class__), str(e), "")
             Thread(
                 target=ipc.publish_message,
                 args=(OUTPUT_TOPIC, response, pubsub_to_iot_core),
@@ -132,6 +133,7 @@ class PubSubStreamHandler(client.SubscribeToIoTCoreStreamHandler):
 
     def on_stream_closed(self) -> None:
         logger.info("Subscribe to topic stream closed.")
+
 
 class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
     def __init__(self):
@@ -146,10 +148,11 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
             metric_request = PutMetricRequest(dict_message)
             put_metrics(metric_request)
         except Exception as e:
-            response = utils.generate_error_response(str(e.__class__), str(e), "")
+            response = utils.generate_error_response(
+                str(e.__class__), str(e), "")
             Thread(
-                target = ipc.publish_message,
-                args = (OUTPUT_TOPIC, response, pubsub_to_iot_core),
+                target=ipc.publish_message,
+                args=(OUTPUT_TOPIC, response, pubsub_to_iot_core),
             ).start()
             logger.info(json.dumps(response))
 
@@ -159,6 +162,3 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
 
     def on_stream_closed(self) -> None:
         logger.info("Subscribe to topic stream closed.")
-
-
-

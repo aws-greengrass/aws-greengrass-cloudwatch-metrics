@@ -1,9 +1,9 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 from functools import reduce
 
 from src import utils
-
 from src.metric import publisher
 
 logger = utils.logger
@@ -32,7 +32,8 @@ class MetricsManager:
         self.__max_bucket_size = max_bucket_size
 
     def __create_new_metric(self, namespace):
-        self.metrics_bucket[namespace] = publisher.MetricPublisher(namespace, self.__region, self.__put_metric_interval)
+        self.metrics_bucket[namespace] = publisher.MetricPublisher(
+            namespace, self.__region, self.__put_metric_interval)
 
     def add_metric(self, namespace, metric_datum):
         if self.metrics_bucket.get(namespace) is None:

@@ -1,12 +1,11 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 import queue as Queue
 from threading import Thread, Timer
 
-from src import ipc_utils
-from src import utils
 from botocore.exceptions import ConnectionError
-
+from src import ipc_utils, utils
 from src.metric import client as CloudWatch
 
 RESPONSE_FIELD_CW_ID = 'cloudwatch_rid'
@@ -15,7 +14,7 @@ ipc = ipc_utils.IPCUtils()
 
 
 METRIC_BATCH_SIZE = 20
-# This is derived from 150 TPS limit of CW, since there are potentially 2 threads dequeing 
+# This is derived from 150 TPS limit of CW, since there are potentially 2 threads dequeing
 # one is the periodic flush and other synchronous add_metric call
 # any value < 150/2 should be ok here.
 DEFAULT_MAX_BATCHES_TO_UPLOAD = 50
@@ -27,6 +26,7 @@ MAX_QUEUE_SIZE_FOR_DIAL_DOWN_MODE = DEFAULT_MAX_BATCHES_TO_UPLOAD * METRIC_BATCH
 MAX_BATCHES_TO_UPLOAD_IN_DIAL_DOWN_MODE = 10
 
 logger = utils.logging.getLogger()
+
 
 class MetricPublisher:
     def __init__(self, namespace, region, put_metric_interval):
@@ -64,13 +64,15 @@ class MetricPublisher:
 
     def __start_flush_timer(self):
         if self.__put_metric_interval > 0:
-            self.timer = Timer(self.__put_metric_interval, self.__start_timer_and_flush_metrics)
+            self.timer = Timer(self.__put_metric_interval,
+                               self.__start_timer_and_flush_metrics)
             self.timer.start()
 
     def __put_metric_in_queue(self, metric_datum):
         try:
             self.__counter += 1
-            self.__metric_list.put_nowait((metric_datum['Timestamp'], self.__counter, metric_datum))
+            self.__metric_list.put_nowait(
+                (metric_datum['Timestamp'], self.__counter, metric_datum))
         except Exception as e:
             raise e
 
@@ -82,7 +84,7 @@ class MetricPublisher:
         batch = []
         for _ in range(METRIC_BATCH_SIZE):
             try:
-                _,_, metric = self.__metric_list.get_nowait()
+                _, _, metric = self.__metric_list.get_nowait()
                 batch.append(metric)
                 self.__counter = 0
             except Queue.Empty as e:
@@ -102,8 +104,10 @@ class MetricPublisher:
     by the time this method runs again. We should be fine in 
     both the cases as we dont guarantee ordering in general.
     '''
+
     def flush_metrics(self, batches_to_upload):
-        from src.cloudwatch_metric_connector import OUTPUT_TOPIC, pubsub_to_iot_core
+        from src.cloudwatch_metric_connector import (OUTPUT_TOPIC,
+                                                     pubsub_to_iot_core)
         num_metrics = self.__metric_list.qsize()
         if num_metrics == 0:
             return
@@ -116,14 +120,17 @@ class MetricPublisher:
             if batch:
                 response = {}
                 try:
-                    cw_response = self.__cw_client.put_metric_data(self.__namespace, batch)
-                    response_payload = { RESPONSE_FIELD_CW_ID: cw_response,
-                            RESPONSE_FILED_NAMESPACE: self.__namespace}
-                    response = utils.generate_success_response("", **response_payload)
-                except ConnectionError as e: # add throttled errors
+                    cw_response = self.__cw_client.put_metric_data(
+                        self.__namespace, batch)
+                    response_payload = {RESPONSE_FIELD_CW_ID: cw_response,
+                                        RESPONSE_FILED_NAMESPACE: self.__namespace}
+                    response = utils.generate_success_response(
+                        "", **response_payload)
+                except ConnectionError as e:  # add throttled errors
                     self.__put_metric_batch_in_queue(batch)
                 except Exception as e:
-                    response = utils.generate_error_response("", str(e.__class__), str(e), **{RESPONSE_FILED_NAMESPACE: self.__namespace})
+                    response = utils.generate_error_response("", str(e.__class__), str(
+                        e), **{RESPONSE_FILED_NAMESPACE: self.__namespace})
                 finally:
                     if response:
                         Thread(
