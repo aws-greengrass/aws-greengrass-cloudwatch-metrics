@@ -19,16 +19,16 @@ config = ipc.get_configuration()
 logger = utils.logger
 
 # Setup Configuration
-if utils.PUBLISH_REGION in config and config[utils.PUBLISH_REGION] != "":
-    PUBLISH_REGION = config[utils.PUBLISH_REGION]
+if utils.PUBLISH_REGION_KEY in config and config[utils.PUBLISH_REGION_KEY] != "":
+    PUBLISH_REGION = config[utils.PUBLISH_REGION_KEY]
 else:
     logger.info("Using default PublishRegion: {}"
                 .format(utils.DEFAULT_PUBLISH_REGION))
     PUBLISH_REGION = utils.DEFAULT_PUBLISH_REGION
 
-if utils.PUBLISH_INTERVAL_SEC in config:
+if utils.PUBLISH_INTERVAL_SEC_KEY in config:
     try:
-        publish_interval = int(config[utils.PUBLISH_INTERVAL_SEC])
+        publish_interval = int(config[utils.PUBLISH_INTERVAL_SEC_KEY])
     except (ValueError, TypeError):
         logger.info("Invalid PublishInterval type. Using the default PublishInterval value: {}"
                     .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
@@ -38,15 +38,19 @@ if utils.PUBLISH_INTERVAL_SEC in config:
         logger.info("PublishInterval can not be more than {} seconds, setting it to max value"
                     .format(utils.MAX_PUBLISH_INTERVAL_SEC))
         publish_interval = utils.MAX_PUBLISH_INTERVAL_SEC
+    if publish_interval < 0:
+        logger.info("Invalid PublishInterval value. Using the default PublishInterval value: {}"
+                    .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
+        publish_interval = utils.DEFAULT_PUBLISH_INTERVAL_SEC
     PUBLISH_INTERVAL_SEC = publish_interval
 else:
     logger.info("Using the default PublishInterval value: {}"
                 .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
     PUBLISH_INTERVAL_SEC = utils.DEFAULT_PUBLISH_INTERVAL_SEC
 
-if utils.MAX_METRICS in config:
+if utils.MAX_METRICS_KEY in config:
     try:
-        max_metrics = int(config[utils.MAX_METRICS])
+        max_metrics = int(config[utils.MAX_METRICS_KEY])
     except (ValueError, TypeError):
         logger.info("Invalid MaxMetricsToRetain type. Using the default MaxMetricsToRetain value: {}"
                     .format(utils.DEFAULT_MAX_METRICS))
@@ -62,22 +66,22 @@ else:
                 .format(utils.DEFAULT_MAX_METRICS))
     MAX_METRICS = utils.DEFAULT_MAX_METRICS
 
-if utils.INPUT_TOPIC in config and config[utils.INPUT_TOPIC] != "":
-    INPUT_TOPIC = config[utils.INPUT_TOPIC]
+if utils.INPUT_TOPIC_KEY in config and config[utils.INPUT_TOPIC_KEY] != "":
+    INPUT_TOPIC = config[utils.INPUT_TOPIC_KEY]
 else:
     logger.info("Using default InputTopic: {}"
                 .format(utils.DEFAULT_INPUT_TOPIC))
     INPUT_TOPIC = utils.DEFAULT_INPUT_TOPIC
 
-if utils.OUTPUT_TOPIC in config and config[utils.OUTPUT_TOPIC] != "":
-    OUTPUT_TOPIC = config[utils.OUTPUT_TOPIC]
+if utils.OUTPUT_TOPIC_KEY in config and config[utils.OUTPUT_TOPIC_KEY] != "":
+    OUTPUT_TOPIC = config[utils.OUTPUT_TOPIC_KEY]
 else:
     logger.info("Using default OutputTopic: {}"
                 .format(utils.DEFAULT_OUTPUT_TOPIC))
     OUTPUT_TOPIC = utils.DEFAULT_OUTPUT_TOPIC
 
-if utils.PUBSUB_TO_IOT_CORE in config and config[utils.PUBSUB_TO_IOT_CORE] != "":
-    PUBSUB_TO_IOT_CORE = config[utils.PUBSUB_TO_IOT_CORE]
+if utils.PUBSUB_TO_IOT_CORE_KEY in config and config[utils.PUBSUB_TO_IOT_CORE_KEY] != "":
+    PUBSUB_TO_IOT_CORE = config[utils.PUBSUB_TO_IOT_CORE_KEY]
 else:
     logger.info("Using default PubSubToIoTCore: {}"
                 .format(utils.DEFAULT_PUBSUB_TO_IOT_CORE))
@@ -128,7 +132,7 @@ class PubSubStreamHandler(client.SubscribeToTopicStreamHandler):
             logger.info(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
-        logger.info("Received a stream error: {}".format(error))
+        logger.error("Received a stream error: {}".format(error))
         return False  # Return True to close stream, False to keep stream open.
 
     def on_stream_closed(self) -> None:
@@ -157,7 +161,7 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
             logger.info(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
-        logger.info("Received a stream error: {}".format(error))
+        logger.error("Received a stream error: {}".format(error))
         return False  # Return True to close stream, False to keep stream open.
 
     def on_stream_closed(self) -> None:

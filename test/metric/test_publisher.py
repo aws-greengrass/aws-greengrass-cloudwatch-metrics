@@ -1,11 +1,14 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
-from mock import patch, MagicMock
 import time
+
+from mock import MagicMock, patch
+
 
 def create_default_metric_datum():
     return {
-        'MetricName' : 'test_metric',
+        'MetricName': 'test_metric',
         'Dimensions': [
             {
                 'Name': 'topic',
@@ -17,17 +20,19 @@ def create_default_metric_datum():
         'Unit': 'Seconds'
     }
 
+
 class TestMetricPublisherWithBatchDisabled(object):
 
     def setup_method(self, method):
-        self.mock_iot_class = patch('awsiot.greengrasscoreipc.connect', autospec=True).start()
+        self.mock_iot_class = patch(
+            'awsiot.greengrasscoreipc.connect', autospec=True).start()
         self.mock_iot = MagicMock()
         self.mock_iot_class.return_value = self.mock_iot
-        self.mock_cw_class = patch('src.metric.client.CloudWatchClient', autospec=True).start()
+        self.mock_cw_class = patch(
+            'src.metric.client.CloudWatchClient', autospec=True).start()
         self.mock_cw = MagicMock()
         self.mock_cw.put_metric_data.return_value = {}
         self.mock_cw_class.return_value = self.mock_cw
-
 
     def teardown_method(self, method):
         patch.stopall()
@@ -40,7 +45,8 @@ class TestMetricPublisherWithBatchDisabled(object):
         i = 0
         while i < publisher.METRIC_BATCH_SIZE - 1:
             metric_publisher.add_metric(metric_datum)
-            self.mock_cw.put_metric_data.assert_called_with('GG', [metric_datum])
+            self.mock_cw.put_metric_data.assert_called_with(
+                'GG', [metric_datum])
             i = i + 1
 
         assert metric_publisher.get_size() == 0

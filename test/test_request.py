@@ -1,7 +1,7 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 import pytest
-
 from src.request import *
 
 DEFAULT_NAMESPACE = 'Greengrass'
@@ -39,13 +39,15 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest({'Random': 'test'})
 
-        assert 'mandatory field ({}) is absent in the input'.format(FIELD_REQUEST) in str(error.value)
+        assert 'mandatory field ({}) is absent in the input'.format(
+            FIELD_REQUEST) in str(error.value)
 
     def test_parse_fails_with_request_field_is_not_dict(self):
         with pytest.raises(Exception) as error:
             PutMetricRequest("test")
 
-        assert 'mandatory field ({}) is not a dict in the input'.format(FIELD_REQUEST) in str(error.value)
+        assert 'mandatory field ({}) is not a dict in the input'.format(
+            FIELD_REQUEST) in str(error.value)
 
     def test_parse_request_fails_when_timestamp_is_not_number(self):
         event = self.create_valid_request_with_all_fields()
@@ -114,8 +116,10 @@ class TestPutMetricRequest(object):
         put_request_metric_datum = put_request.metric_datum
 
         self.assert_default_metric_values(put_request_metric_datum)
-        assert put_request_metric_datum['Dimensions'][1].get('Name') == 'new_name'
-        assert put_request_metric_datum['Dimensions'][1].get('Value') == 'new_value'
+        assert put_request_metric_datum['Dimensions'][1].get(
+            'Name') == 'new_name'
+        assert put_request_metric_datum['Dimensions'][1].get(
+            'Value') == 'new_value'
 
     def test_parse_request_fails_when_dimensions_exceed_limit(self):
         event = self.create_valid_request_with_all_fields()
@@ -138,7 +142,8 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'mandatory field ({}) is absent in the dimension'.format(FIELD_DIMENSION_NAME) in str(error.value)
+        assert 'mandatory field ({}) is absent in the dimension'.format(
+            FIELD_DIMENSION_NAME) in str(error.value)
 
     def test_parse_request_fails_when_dimensions_is_not_dict(self):
         event = self.create_valid_request_with_all_fields()
@@ -147,14 +152,16 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'field ({}) is not of type list in the input'.format(FIELD_DIMENSIONS) in str(error.value)
+        assert 'field ({}) is not of type list in the input'.format(
+            FIELD_DIMENSIONS) in str(error.value)
 
         event['request']['metricData']['dimensions'] = "string"
 
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'field ({}) is not of type list in the input'.format(FIELD_DIMENSIONS) in str(error.value)
+        assert 'field ({}) is not of type list in the input'.format(
+            FIELD_DIMENSIONS) in str(error.value)
 
     def test_parse_request_fails_when_dimensions_value_absent(self):
         event = self.create_valid_request_with_all_fields()
@@ -163,7 +170,8 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'mandatory field ({}) is absent in the dimension'.format(FIELD_DIMENSION_VALUE) in str(error.value)
+        assert 'mandatory field ({}) is absent in the dimension'.format(
+            FIELD_DIMENSION_VALUE) in str(error.value)
 
     def test_parse_request_succeeds_when_value_is_int(self):
         event = self.create_valid_request_with_all_fields()
@@ -180,7 +188,8 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'mandatory field ({}) is not a number'.format(FIELD_METRIC_VALUE) in str(error.value)
+        assert 'mandatory field ({}) is not a number'.format(
+            FIELD_METRIC_VALUE) in str(error.value)
 
     def test_parse_request_fails_when_value_is_absent(self):
         event = self.create_valid_request_with_all_fields()
@@ -189,7 +198,8 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'mandatory field ({}) is absent in the input'.format(FIELD_METRIC_VALUE) in str(error.value)
+        assert 'mandatory field ({}) is absent in the input'.format(
+            FIELD_METRIC_VALUE) in str(error.value)
 
     def test_parse_request_fails_when_unit_is_not_valid(self):
         event = self.create_valid_request_with_all_fields()
@@ -208,7 +218,8 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'mandatory field ({}) is absent in the input'.format(FIELD_NAMESPACE) in str(error.value)
+        assert 'mandatory field ({}) is absent in the input'.format(
+            FIELD_NAMESPACE) in str(error.value)
 
     def test_parse_request_fails_when_metricdata_absent(self):
         event = self.create_valid_request_with_all_fields()
@@ -224,14 +235,16 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'Incorrect payload format, field ({}) is not a dict'.format(FIELD_METRIC_DATA) in str(error.value)
+        assert 'Incorrect payload format, field ({}) is not a dict'.format(
+            FIELD_METRIC_DATA) in str(error.value)
 
         event['request']['metricData'] = "string"
 
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'Incorrect payload format, field ({}) is not a dict'.format(FIELD_METRIC_DATA) in str(error.value)
+        assert 'Incorrect payload format, field ({}) is not a dict'.format(
+            FIELD_METRIC_DATA) in str(error.value)
 
     def test_parse_request_fails_when_metricname_absent(self):
         event = self.create_valid_request_with_all_fields()
@@ -240,7 +253,8 @@ class TestPutMetricRequest(object):
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
 
-        assert 'mandatory field ({}) is absent in the input'.format(FIELD_METRIC_NAME) in str(error.value)
+        assert 'mandatory field ({}) is absent in the input'.format(
+            FIELD_METRIC_NAME) in str(error.value)
 
     def test_parse_request_succeeds_when_all_optional_fields_absent(self):
         event = self.create_valid_request_with_all_fields()

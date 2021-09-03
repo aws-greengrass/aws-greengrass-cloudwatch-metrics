@@ -1,16 +1,20 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
-from mock import patch, MagicMock
 import time
+
+from mock import MagicMock, patch
 
 
 class TestMetricManager(object):
 
     def setup_method(self, method):
-        self.mock_iot_class = patch('awsiot.greengrasscoreipc.connect', autospec=True).start()
+        self.mock_iot_class = patch(
+            'awsiot.greengrasscoreipc.connect', autospec=True).start()
         self.mock_iot = MagicMock()
         self.mock_iot_class.return_value = self.mock_iot
-        self.mock_publisher_class = patch('src.metric.publisher.MetricPublisher', autospec=True).start()
+        self.mock_publisher_class = patch(
+            'src.metric.publisher.MetricPublisher', autospec=True).start()
         self.mock_publisher = MagicMock()
         self.mock_publisher_class.return_value = self.mock_publisher
 
@@ -19,6 +23,7 @@ class TestMetricManager(object):
 
     def test_add_metric(self):
         from src.metric.manager import MetricsManager
+
         # always return size for bucket as 0 so that we keep on adding metrics
         self.mock_publisher.get_size.return_value = 0
         metric_datum = self.create_default_metric_datum()
@@ -58,7 +63,8 @@ class TestMetricManager(object):
 
         # now an add should trigger replace_metric()
         metric_manager.add_metric('GG', metric_datum)
-        self.mock_publisher.replace_metric.assert_called_once_with(metric_datum)
+        self.mock_publisher.replace_metric.assert_called_once_with(
+            metric_datum)
 
     def test_replace_metric_with_multiple_namespaces(self):
         from src.metric.manager import MetricsManager
@@ -96,7 +102,7 @@ class TestMetricManager(object):
 
     def create_default_metric_datum(self):
         return {
-            'MetricName' : 'test_metric',
+            'MetricName': 'test_metric',
             'Dimensions': [
                 {
                     'Name': 'topic',
