@@ -24,7 +24,7 @@ MIN_MAX_METRICS = 2000
 INPUT_TOPIC_KEY = 'InputTopic'
 DEFAULT_INPUT_TOPIC = "cloudwatch/metric/put"
 OUTPUT_TOPIC_KEY = 'OutputTopic'
-DEFAULT_OUTPUT_TOPIC = "cloudwatch/metric/status"
+DEFAULT_OUTPUT_TOPIC = "cloudwatch/metric/put/status"
 
 PUBSUB_TO_IOT_CORE_KEY = 'PubSubToIoTCore'
 DEFAULT_PUBSUB_TO_IOT_CORE = 'False'

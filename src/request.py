@@ -21,7 +21,7 @@ class PutMetricRequest:
                 {'Name': dimension_name, 'Value': dimension_value})
 
     def parse_event(self, event):
-        if not type(event) is dict:
+        if type(event) is not dict:
             raise ValueError(
                 'mandatory field ({}) is not a dict in the input'.format(FIELD_REQUEST))
 

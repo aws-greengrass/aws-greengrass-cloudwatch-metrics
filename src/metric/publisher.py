@@ -69,12 +69,9 @@ class MetricPublisher:
             self.timer.start()
 
     def __put_metric_in_queue(self, metric_datum):
-        try:
-            self.__counter += 1
-            self.__metric_list.put_nowait(
-                (metric_datum['Timestamp'], self.__counter, metric_datum))
-        except Exception as e:
-            raise e
+        self.__counter += 1
+        self.__metric_list.put_nowait(
+            (metric_datum['Timestamp'], self.__counter, metric_datum))
 
     def __put_metric_batch_in_queue(self, metric_batch):
         for metric in metric_batch:
