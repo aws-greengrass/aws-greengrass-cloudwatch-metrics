@@ -25,5 +25,5 @@ class CloudWatchClient:
             # if there is no request id, just send back whole response
             return response
         except Exception as e:
-            logging.error("Error was encountered publishing to cloudwatch:")
+            logging.exception("Error was encountered publishing to cloudwatch: {}".format(e))
             raise

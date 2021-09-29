@@ -19,8 +19,8 @@ Tell us what actually happened.
 
 **Environment**
  - OS: [e.g. Ubuntu 20.04]
- - JDK version:
- - Nucleus version:
+ - Python version:
+ - Cloudwatch Component version:
 
 **Additional context**
 Add any other context about the problem here.

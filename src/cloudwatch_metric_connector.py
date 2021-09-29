@@ -22,74 +22,70 @@ logger = utils.logger
 if utils.PUBLISH_REGION_KEY in config and config[utils.PUBLISH_REGION_KEY] != "":
     PUBLISH_REGION = config[utils.PUBLISH_REGION_KEY]
 else:
-    logger.info("Using default PublishRegion: {}"
-                .format(utils.DEFAULT_PUBLISH_REGION))
     PUBLISH_REGION = utils.DEFAULT_PUBLISH_REGION
 
 if utils.PUBLISH_INTERVAL_SEC_KEY in config:
     try:
         publish_interval = int(config[utils.PUBLISH_INTERVAL_SEC_KEY])
     except (ValueError, TypeError):
-        logger.info("Invalid PublishInterval type. Using the default PublishInterval value: {}"
+        logger.warning("Invalid PublishInterval type. Using the default PublishInterval value: {}"
                     .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
         publish_interval = utils.DEFAULT_PUBLISH_INTERVAL_SEC
 
     if publish_interval > utils.MAX_PUBLISH_INTERVAL_SEC:
-        logger.info("PublishInterval can not be more than {} seconds, setting it to max value"
+        logger.warning("PublishInterval can not be more than {} seconds, setting it to max value"
                     .format(utils.MAX_PUBLISH_INTERVAL_SEC))
         publish_interval = utils.MAX_PUBLISH_INTERVAL_SEC
     if publish_interval < 0:
-        logger.info("Invalid PublishInterval value. Using the default PublishInterval value: {}"
+        logger.warning("Invalid PublishInterval value. Using the default PublishInterval value: {}"
                     .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
         publish_interval = utils.DEFAULT_PUBLISH_INTERVAL_SEC
     PUBLISH_INTERVAL_SEC = publish_interval
 else:
-    logger.info("Using the default PublishInterval value: {}"
-                .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
     PUBLISH_INTERVAL_SEC = utils.DEFAULT_PUBLISH_INTERVAL_SEC
 
 if utils.MAX_METRICS_KEY in config:
     try:
         max_metrics = int(config[utils.MAX_METRICS_KEY])
     except (ValueError, TypeError):
-        logger.info("Invalid MaxMetricsToRetain type. Using the default MaxMetricsToRetain value: {}"
+        logger.warning("Invalid MaxMetricsToRetain type. Using the default MaxMetricsToRetain value: {}"
                     .format(utils.DEFAULT_MAX_METRICS))
         max_metrics = utils.DEFAULT_MAX_METRICS
 
     if max_metrics < utils.MIN_MAX_METRICS:
-        logger.info("MaxMetricsToRetain can not be less than {} metrics, setting it to least value"
+        logger.warning("MaxMetricsToRetain can not be less than {} metrics, setting it to least value"
                     .format(utils.MIN_MAX_METRICS))
         max_metrics = utils.MIN_MAX_METRICS
     MAX_METRICS = max_metrics
 else:
-    logger.info("Using the default MaxMetricsToRetain value: {}"
-                .format(utils.DEFAULT_MAX_METRICS))
     MAX_METRICS = utils.DEFAULT_MAX_METRICS
 
 if utils.INPUT_TOPIC_KEY in config and config[utils.INPUT_TOPIC_KEY] != "":
     INPUT_TOPIC = config[utils.INPUT_TOPIC_KEY]
 else:
-    logger.info("Using default InputTopic: {}"
-                .format(utils.DEFAULT_INPUT_TOPIC))
     INPUT_TOPIC = utils.DEFAULT_INPUT_TOPIC
 
 if utils.OUTPUT_TOPIC_KEY in config and config[utils.OUTPUT_TOPIC_KEY] != "":
     OUTPUT_TOPIC = config[utils.OUTPUT_TOPIC_KEY]
 else:
-    logger.info("Using default OutputTopic: {}"
-                .format(utils.DEFAULT_OUTPUT_TOPIC))
     OUTPUT_TOPIC = utils.DEFAULT_OUTPUT_TOPIC
 
 if utils.PUBSUB_TO_IOT_CORE_KEY in config and config[utils.PUBSUB_TO_IOT_CORE_KEY] != "":
     PUBSUB_TO_IOT_CORE = config[utils.PUBSUB_TO_IOT_CORE_KEY]
 else:
-    logger.info("Using default PubSubToIoTCore: {}"
-                .format(utils.DEFAULT_PUBSUB_TO_IOT_CORE))
     PUBSUB_TO_IOT_CORE = utils.DEFAULT_PUBSUB_TO_IOT_CORE
 
 pubsub_to_iot_core = False
 if re.match(r'true', str(PUBSUB_TO_IOT_CORE), flags=re.IGNORECASE):
     pubsub_to_iot_core = True
+
+logger.info("Using Configuration:")
+logger.info("{0}: {1}".format(utils.PUBLISH_REGION_KEY, PUBLISH_REGION))
+logger.info("{0}: {1}".format(utils.PUBLISH_INTERVAL_SEC_KEY, PUBLISH_INTERVAL_SEC))
+logger.info("{0}: {1}".format(utils.MAX_METRICS_KEY, MAX_METRICS))
+logger.info("{0}: {1}".format(utils.INPUT_TOPIC_KEY, INPUT_TOPIC))
+logger.info("{0}: {1}".format(utils.OUTPUT_TOPIC_KEY, OUTPUT_TOPIC))
+logger.info("{0}: {1}".format(utils.PUBSUB_TO_IOT_CORE_KEY, PUBSUB_TO_IOT_CORE))
 
 metrics_manager = MetricsManager(
     PUBLISH_REGION, PUBLISH_INTERVAL_SEC, MAX_METRICS)
@@ -118,8 +114,8 @@ class PubSubStreamHandler(client.SubscribeToTopicStreamHandler):
     def on_stream_event(self, event: SubscriptionResponseMessage) -> None:
         try:
             message = event.json_message.message
-            logger.info("Received new message: ")
-            logger.info(message)
+            logger.debug("Received new message: ")
+            logger.debug(message)
             metric_request = PutMetricRequest(message)
             put_metrics(metric_request)
         except Exception as e:
@@ -129,14 +125,11 @@ class PubSubStreamHandler(client.SubscribeToTopicStreamHandler):
                 target=ipc.publish_message,
                 args=(OUTPUT_TOPIC, response, pubsub_to_iot_core),
             ).start()
-            logger.info(json.dumps(response))
+            logger.error(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
-        logger.error("Received a stream error: {}".format(error))
+        logger.exception("Received a stream error: {}".format(error))
         return False  # Return True to close stream, False to keep stream open.
-
-    def on_stream_closed(self) -> None:
-        logger.info("Subscribe to topic stream closed.")
 
 
 class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
@@ -147,8 +140,8 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
         try:
             message = event.message.payload.decode('utf-8')
             dict_message = json.loads(message)
-            logger.info("Received new message: ")
-            logger.info(dict_message)
+            logger.debug("Received new message: ")
+            logger.debug(dict_message)
             metric_request = PutMetricRequest(dict_message)
             put_metrics(metric_request)
         except Exception as e:
@@ -158,11 +151,8 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
                 target=ipc.publish_message,
                 args=(OUTPUT_TOPIC, response, pubsub_to_iot_core),
             ).start()
-            logger.info(json.dumps(response))
+            logger.error(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
-        logger.error("Received a stream error: {}".format(error))
+        logger.exception("Received a stream error: {}".format(error))
         return False  # Return True to close stream, False to keep stream open.
-
-    def on_stream_closed(self) -> None:
-        logger.info("Subscribe to topic stream closed.")

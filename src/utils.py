@@ -7,11 +7,19 @@ import sys
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
-logger.setLevel(logging.INFO)
+log_level_switcher = {
+    "CRITICAL" : logging.CRITICAL,
+    "ERROR" : logging.ERROR,
+    "WARNING" : logging.WARNING,
+    "INFO" : logging.INFO,
+    "DEBUG" : logging.DEBUG
+}
+log_level = log_level_switcher.get(os.environ.get("GG_CW_LOG_LEVEL"), logging.INFO)
+logger.setLevel(log_level)
 logger.addHandler(handler)
 
 PUBLISH_REGION_KEY = 'PublishRegion'
-DEFAULT_PUBLISH_REGION = "us-east-1"
+DEFAULT_PUBLISH_REGION = os.environ.get("AWS_DEFAULT_REGION")
 
 PUBLISH_INTERVAL_SEC_KEY = 'PublishInterval'
 DEFAULT_PUBLISH_INTERVAL_SEC = 20

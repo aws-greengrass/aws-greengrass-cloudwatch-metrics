@@ -32,8 +32,8 @@ class IPCUtils:
             result = operation.get_response().result(TIMEOUT)
             return result.value
         except Exception as e:
-            logger.error(
-                "Exception occured during fetching the configuration: " + e)
+            logger.exception(
+                "Exception occured during fetching the configuration: {0}".format(e))
             raise e
 
     def publish_message(self, topic, message, pubsub_to_iot_core):
@@ -53,17 +53,17 @@ class IPCUtils:
         futureResponse = operation.get_response()
         try:
             futureResponse.result(TIMEOUT)
-            logger.info('Successfully published to pubsub topic: ' + topic)
+            logger.debug('Successfully published to pubsub topic: {0}'.format(topic))
         except concurrent.futures.TimeoutError:
-            logger.info(
-                'Timeout occurred while publishing to pubsub topic: ' + topic)
+            logger.exception(
+                'Timeout occurred while publishing to pubsub topic: {0}'.format(topic))
         except UnauthorizedError as e:
-            logger.error(
-                'Unauthorized error while publishing to pubsub topic: ' + topic)
+            logger.exception(
+                'Unauthorized error while publishing to pubsub topic: {0}'.format(topic))
             raise e
         except Exception as e:
-            logger.error(
-                'Exception while publishing to pubsub topic: ' + topic)
+            logger.exception(
+                'Exception while publishing to pubsub topic: {0}'.format(topic))
             raise e
 
     def publish_to_iot_topic(self, topic, message):
@@ -77,17 +77,17 @@ class IPCUtils:
         futureResponse = operation.get_response()
         try:
             futureResponse.result(TIMEOUT)
-            logger.info('Successfully published to IoT core topic: ' + topic)
+            logger.debug('Successfully published to IoT core topic: {0}'.format(topic))
         except concurrent.futures.TimeoutError:
-            logger.info(
-                'Timeout occurred while publishing to IoT core topic: ' + topic)
+            logger.exception(
+                'Timeout occurred while publishing to IoT core topic: {0}'.format(topic))
         except UnauthorizedError as e:
-            logger.error(
-                'Unauthorized error while publishing to IoT core topic: ' + topic)
+            logger.exception(
+                'Unauthorized error while publishing to IoT core topic: {0}'.format(topic))
             raise e
         except Exception as e:
-            logger.error(
-                'Exception while publishing to IoT core topic: ' + topic)
+            logger.exception(
+                'Exception while publishing to IoT core topic: {0}'.format(topic))
             raise e
 
     def subscribe_to_pubsub_topic(self, topic, handler):
@@ -98,18 +98,18 @@ class IPCUtils:
 
         try:
             future.result(TIMEOUT)
-            logger.info('Successfully subscribed to pubsub topic: ' + topic)
+            logger.debug('Successfully subscribed to pubsub topic: {0}'.format(topic))
         except concurrent.futures.TimeoutError as e:
-            logger.error(
-                'Timeout occurred while subscribing to pubsub topic: ' + topic)
+            logger.exception(
+                'Timeout occurred while subscribing to pubsub topic: {0}'.format(topic))
             raise e
         except UnauthorizedError as e:
-            logger.error(
-                'Unauthorized error while subscribing to pubsub topic: ' + topic)
+            logger.exception(
+                'Unauthorized error while subscribing to pubsub topic: {0}'.format(topic))
             raise e
         except Exception as e:
-            logger.error(
-                'Exception while subscribing to pubsub topic: ' + topic)
+            logger.exception(
+                'Exception while subscribing to pubsub topic: {0}'.format(topic))
             raise e
 
         # Keep the thread alive, or the process will exit.
@@ -128,18 +128,18 @@ class IPCUtils:
 
         try:
             future.result(TIMEOUT)
-            logger.info('Successfully subscribed to IoT core topic: ' + topic)
+            logger.debug('Successfully subscribed to IoT core topic: {0}'.format(topic))
         except concurrent.futures.TimeoutError as e:
-            logger.error(
-                'Timeout occurred while subscribing to IoT core topic: ' + topic)
+            logger.exception(
+                'Timeout occurred while subscribing to IoT core topic: {0}'.format(topic))
             raise e
         except UnauthorizedError as e:
-            logger.error(
-                'Unauthorized error while subscribing to IoT core topic: ' + topic)
+            logger.exception(
+                'Unauthorized error while subscribing to IoT core topic: {0}'.format(topic))
             raise e
         except Exception as e:
-            logger.error(
-                'Exception while subscribing to IoT core topic: ' + topic)
+            logger.exception(
+                'Exception while subscribing to IoT core topic: {0}'.format(topic))
             raise e
 
 
@@ -148,7 +148,7 @@ try:
     ipc_client = awsiot.greengrasscoreipc.connect()
     logger.info("Created IPC client...")
 except Exception as e:
-    logger.error(
+    logger.exception(
         "Exception occured during the creation of an IPC client: " + e
     )
     exit(1)
