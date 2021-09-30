@@ -28,17 +28,17 @@ if utils.PUBLISH_INTERVAL_SEC_KEY in config:
     try:
         publish_interval = int(config[utils.PUBLISH_INTERVAL_SEC_KEY])
     except (ValueError, TypeError):
-        logger.warning("Invalid PublishInterval type. Using the default PublishInterval value: {}"
-                    .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
+        logger.warning("Invalid PublishInterval type. Using the default PublishInterval value: %s"
+                    , utils.DEFAULT_PUBLISH_INTERVAL_SEC)
         publish_interval = utils.DEFAULT_PUBLISH_INTERVAL_SEC
 
     if publish_interval > utils.MAX_PUBLISH_INTERVAL_SEC:
-        logger.warning("PublishInterval can not be more than {} seconds, setting it to max value"
-                    .format(utils.MAX_PUBLISH_INTERVAL_SEC))
+        logger.warning("PublishInterval can not be more than %s seconds, setting it to max value"
+                    , utils.MAX_PUBLISH_INTERVAL_SEC)
         publish_interval = utils.MAX_PUBLISH_INTERVAL_SEC
     if publish_interval < 0:
-        logger.warning("Invalid PublishInterval value. Using the default PublishInterval value: {}"
-                    .format(utils.DEFAULT_PUBLISH_INTERVAL_SEC))
+        logger.warning("Invalid PublishInterval value. Using the default PublishInterval value: %s"
+                    , utils.DEFAULT_PUBLISH_INTERVAL_SEC)
         publish_interval = utils.DEFAULT_PUBLISH_INTERVAL_SEC
     PUBLISH_INTERVAL_SEC = publish_interval
 else:
@@ -48,13 +48,13 @@ if utils.MAX_METRICS_KEY in config:
     try:
         max_metrics = int(config[utils.MAX_METRICS_KEY])
     except (ValueError, TypeError):
-        logger.warning("Invalid MaxMetricsToRetain type. Using the default MaxMetricsToRetain value: {}"
-                    .format(utils.DEFAULT_MAX_METRICS))
+        logger.warning("Invalid MaxMetricsToRetain type. Using the default MaxMetricsToRetain value: %s"
+                    , utils.DEFAULT_MAX_METRICS)
         max_metrics = utils.DEFAULT_MAX_METRICS
 
     if max_metrics < utils.MIN_MAX_METRICS:
-        logger.warning("MaxMetricsToRetain can not be less than {} metrics, setting it to least value"
-                    .format(utils.MIN_MAX_METRICS))
+        logger.warning("MaxMetricsToRetain can not be less than %s metrics, setting it to least value"
+                    , utils.MIN_MAX_METRICS)
         max_metrics = utils.MIN_MAX_METRICS
     MAX_METRICS = max_metrics
 else:

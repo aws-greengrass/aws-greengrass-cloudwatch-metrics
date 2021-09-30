@@ -31,12 +31,12 @@ class CloudWatchClient:
         try:
             response = self.client.put_metric_data(**put_metric_args)
             logger.info(
-                "Cloudwatch metrics published successfully with response: {}".format(response))
+                "Cloudwatch metrics published successfully with response: %s", response)
             if type(response) is dict and response.get('ResponseMetadata'):
                 if type(response['ResponseMetadata']) is dict and response['ResponseMetadata'].get('RequestId'):
                     return response['ResponseMetadata']['RequestId']
             # if there is no request id, just send back whole response
             return response
-        except Exception as e:
-            logging.exception("Error was encountered publishing to cloudwatch: {}".format(e))
+        except Exception:
+            logging.exception("Error was encountered publishing to cloudwatch: ")
             raise
