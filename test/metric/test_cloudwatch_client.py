@@ -8,12 +8,18 @@ from mock import MagicMock, patch
 from src.metric.client import CloudWatchClient
 
 
-@patch('boto3.client', autospec=True)
+@patch('botocore.credentials.CredentialResolver', autospec=True)
+@patch('boto3.Session', autospec=True)
 class TestCloudWatchClient(object):
 
-    def test_successful_cw_publish(self, mock_client):
+    def test_successful_cw_publish(self, mock_session, mock_resolver):
+        mock_cred_resolver = MagicMock()
+        mock_resolver.return_value = mock_cred_resolver
+        mock_cred_resolver.load_credentials.return_value = 'mock_credentials'
+        mock_cw_session = MagicMock()
+        mock_session.return_value = mock_cw_session
         mock_cw_client = MagicMock()
-        mock_client.return_value = mock_cw_client
+        mock_cw_session.client.return_value = mock_cw_client
         mock_cw_client.put_metric_data.return_value = 'random'
 
         cw_client = CloudWatchClient('us-east-1')
@@ -22,9 +28,14 @@ class TestCloudWatchClient(object):
 
         assert response == 'random'
 
-    def test_successful_cw_publish_with_request_id(self, mock_client):
+    def test_successful_cw_publish_with_request_id(self, mock_session, mock_resolver):
+        mock_cred_resolver = MagicMock()
+        mock_resolver.return_value = mock_cred_resolver
+        mock_cred_resolver.load_credentials.return_value = 'mock_credentials'
+        mock_cw_session = MagicMock()
+        mock_session.return_value = mock_cw_session
         mock_cw_client = MagicMock()
-        mock_client.return_value = mock_cw_client
+        mock_cw_session.client.return_value = mock_cw_client
         mock_cw_client.put_metric_data.return_value = {
             'ResponseMetadata': {'RequestId': 'test_id'}}
 
@@ -34,9 +45,14 @@ class TestCloudWatchClient(object):
 
         assert response == 'test_id'
 
-    def test_failed_cw_publish(self, mock_client):
+    def test_failed_cw_publish(self, mock_session, mock_resolver):
+        mock_cred_resolver = MagicMock()
+        mock_resolver.return_value = mock_cred_resolver
+        mock_cred_resolver.load_credentials.return_value = 'mock_credentials'
+        mock_cw_session = MagicMock()
+        mock_session.return_value = mock_cw_session
         mock_cw_client = MagicMock()
-        mock_client.return_value = mock_cw_client
+        mock_cw_session.client.return_value = mock_cw_client
         mock_cw_client.put_metric_data.side_effect = ValueError(
             'Test Exception')
 

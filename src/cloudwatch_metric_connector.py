@@ -119,13 +119,14 @@ class PubSubStreamHandler(client.SubscribeToTopicStreamHandler):
             metric_request = PutMetricRequest(message)
             put_metrics(metric_request)
         except Exception as e:
+            logger.exception("Error putting metrics to Cloudwatch: {0}".format(e))
             response = utils.generate_error_response(
                 str(e.__class__), str(e), "")
             Thread(
                 target=ipc.publish_message,
                 args=(OUTPUT_TOPIC, response, pubsub_to_iot_core),
             ).start()
-            logger.error(json.dumps(response))
+            logger.debug(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
         logger.exception("Received a stream error: {}".format(error))
@@ -145,13 +146,14 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
             metric_request = PutMetricRequest(dict_message)
             put_metrics(metric_request)
         except Exception as e:
+            logger.exception("Error putting metrics to Cloudwatch: {0}".format(e))
             response = utils.generate_error_response(
                 str(e.__class__), str(e), "")
             Thread(
                 target=ipc.publish_message,
                 args=(OUTPUT_TOPIC, response, pubsub_to_iot_core),
             ).start()
-            logger.error(json.dumps(response))
+            logger.debug(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
         logger.exception("Received a stream error: {}".format(error))
