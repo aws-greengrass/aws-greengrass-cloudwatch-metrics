@@ -80,12 +80,12 @@ if re.match(r'true', str(PUBSUB_TO_IOT_CORE), flags=re.IGNORECASE):
     pubsub_to_iot_core = True
 
 logger.info("Using Configuration:")
-logger.info("{0}: {1}".format(utils.PUBLISH_REGION_KEY, PUBLISH_REGION))
-logger.info("{0}: {1}".format(utils.PUBLISH_INTERVAL_SEC_KEY, PUBLISH_INTERVAL_SEC))
-logger.info("{0}: {1}".format(utils.MAX_METRICS_KEY, MAX_METRICS))
-logger.info("{0}: {1}".format(utils.INPUT_TOPIC_KEY, INPUT_TOPIC))
-logger.info("{0}: {1}".format(utils.OUTPUT_TOPIC_KEY, OUTPUT_TOPIC))
-logger.info("{0}: {1}".format(utils.PUBSUB_TO_IOT_CORE_KEY, PUBSUB_TO_IOT_CORE))
+logger.info("%s: %s", utils.PUBLISH_REGION_KEY, PUBLISH_REGION)
+logger.info("%s: %s", utils.PUBLISH_INTERVAL_SEC_KEY, PUBLISH_INTERVAL_SEC)
+logger.info("%s: %s", utils.MAX_METRICS_KEY, MAX_METRICS)
+logger.info("%s: %s", utils.INPUT_TOPIC_KEY, INPUT_TOPIC)
+logger.info("%s: %s", utils.OUTPUT_TOPIC_KEY, OUTPUT_TOPIC)
+logger.info("%s: %s", utils.PUBSUB_TO_IOT_CORE_KEY, PUBSUB_TO_IOT_CORE)
 
 metrics_manager = MetricsManager(
     PUBLISH_REGION, PUBLISH_INTERVAL_SEC, MAX_METRICS)
@@ -114,12 +114,11 @@ class PubSubStreamHandler(client.SubscribeToTopicStreamHandler):
     def on_stream_event(self, event: SubscriptionResponseMessage) -> None:
         try:
             message = event.json_message.message
-            logger.debug("Received new message: ")
-            logger.debug(message)
+            logger.debug("Received new message: %s", message)
             metric_request = PutMetricRequest(message)
             put_metrics(metric_request)
         except Exception as e:
-            logger.exception("Error putting metrics to Cloudwatch: {0}".format(e))
+            logger.exception("Error putting metrics to Cloudwatch: ")
             response = utils.generate_error_response(
                 str(e.__class__), str(e), "")
             Thread(
@@ -129,7 +128,7 @@ class PubSubStreamHandler(client.SubscribeToTopicStreamHandler):
             logger.debug(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
-        logger.exception("Received a stream error: {}".format(error))
+        logger.exception("Received a stream error: ")
         return False  # Return True to close stream, False to keep stream open.
 
 
@@ -141,12 +140,11 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
         try:
             message = event.message.payload.decode('utf-8')
             dict_message = json.loads(message)
-            logger.debug("Received new message: ")
-            logger.debug(dict_message)
+            logger.debug("Received new message: %s", message)
             metric_request = PutMetricRequest(dict_message)
             put_metrics(metric_request)
         except Exception as e:
-            logger.exception("Error putting metrics to Cloudwatch: {0}".format(e))
+            logger.exception("Error putting metrics to Cloudwatch: ")
             response = utils.generate_error_response(
                 str(e.__class__), str(e), "")
             Thread(
@@ -156,5 +154,5 @@ class IoTCoreStreamHandler(client.SubscribeToIoTCoreStreamHandler):
             logger.debug(json.dumps(response))
 
     def on_stream_error(self, error: Exception) -> bool:
-        logger.exception("Received a stream error: {}".format(error))
+        logger.exception("Received a stream error: ")
         return False  # Return True to close stream, False to keep stream open.

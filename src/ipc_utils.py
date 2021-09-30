@@ -4,7 +4,6 @@
 import concurrent.futures
 import json
 import time
-from os import getenv
 
 import awsiot.greengrasscoreipc
 from awsiot.greengrasscoreipc.model import (QOS, GetConfigurationRequest,
@@ -31,10 +30,10 @@ class IPCUtils:
             operation.activate(request).result(TIMEOUT)
             result = operation.get_response().result(TIMEOUT)
             return result.value
-        except Exception as e:
+        except Exception:
             logger.exception(
-                "Exception occured during fetching the configuration: {0}".format(e))
-            raise e
+                "Exception occured during fetching the configuration: "
+            )
 
     def publish_message(self, topic, message, pubsub_to_iot_core):
         self.publish_to_pubsub_topic(topic, message)
@@ -139,6 +138,6 @@ try:
     logger.info("Created IPC client...")
 except Exception as e:
     logger.exception(
-        "Exception occured during the creation of an IPC client: " + e
+        "Exception occured during the creation of an IPC client: "
     )
     exit(1)
