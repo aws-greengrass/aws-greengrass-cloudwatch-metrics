@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 handler = logging.StreamHandler(sys.stdout)
 log_level_switcher = {
     "CRITICAL" : logging.CRITICAL,
