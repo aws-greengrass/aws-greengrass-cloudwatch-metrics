@@ -102,8 +102,8 @@ class TestHandler(object):
         import src.cloudwatch_metric_connector as app
         importlib.reload(app)
 
-        assert app.PUBLISH_INTERVAL_SEC == 900
-        assert app.MAX_METRICS == 2000
+        assert app.PUBLISH_INTERVAL_SEC == utils.MAX_PUBLISH_INTERVAL_SEC
+        assert app.MAX_METRICS == utils.MIN_MAX_METRICS
 
         invalid_config[utils.PUBLISH_INTERVAL_SEC_KEY] = "string 1"
         invalid_config[utils.MAX_METRICS_KEY] = "string 2"
@@ -112,15 +112,15 @@ class TestHandler(object):
         import src.cloudwatch_metric_connector as app
         importlib.reload(app)
 
-        assert app.PUBLISH_INTERVAL_SEC == 20
-        assert app.MAX_METRICS == 5000
+        assert app.PUBLISH_INTERVAL_SEC == utils.DEFAULT_PUBLISH_INTERVAL_SEC
+        assert app.MAX_METRICS == utils.DEFAULT_MAX_METRICS
 
         invalid_config[utils.PUBLISH_INTERVAL_SEC_KEY] = -1000
 
         import src.cloudwatch_metric_connector as app
         importlib.reload(app)
 
-        assert app.PUBLISH_INTERVAL_SEC == 20
+        assert app.PUBLISH_INTERVAL_SEC == utils.DEFAULT_PUBLISH_INTERVAL_SEC
 
     def test_empty_config_values(self):
         self.mock_ipc.get_configuration.return_value = get_empty_values_config()
