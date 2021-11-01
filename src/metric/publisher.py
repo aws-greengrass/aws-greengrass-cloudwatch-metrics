@@ -69,6 +69,9 @@ class MetricPublisher:
             self.timer.start()
 
     def __put_metric_in_queue(self, metric_datum):
+        # Re-initialize the metric ordering if the queue is empty after the previous flush metrics call
+        if self.__metric_list.qsize() == 0:
+            self.__counter = 0
         self.__counter += 1
         self.__metric_list.put_nowait(
             (metric_datum['Timestamp'], self.__counter, metric_datum))
@@ -83,7 +86,6 @@ class MetricPublisher:
             try:
                 _, _, metric = self.__metric_list.get_nowait()
                 batch.append(metric)
-                self.__counter = 0
             except Queue.Empty as e:
                 break
 
