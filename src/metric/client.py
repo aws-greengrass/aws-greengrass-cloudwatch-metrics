@@ -22,7 +22,7 @@ class CloudWatchClient:
         if container_creds is not None:
             session._credentials = container_creds
             self.client = boto3.Session(botocore_session=session).client(
-                'cloudwatch', region, config=config.Config(proxies_config={'proxy_ca_bundle': gg_root_ca_path}))
+                'cloudwatch', region, config=config.Config(proxies_config={'proxy_ca_bundle': utils.GG_ROOT_CA_PATH}))
         else:
             raise exceptions.CredentialRetrievalError(
                 provider=credentials.ContainerProvider.METHOD,
