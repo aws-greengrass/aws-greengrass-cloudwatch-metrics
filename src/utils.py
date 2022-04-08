@@ -38,6 +38,7 @@ PUBSUB_TO_IOT_CORE_KEY = 'PubSubToIoTCore'
 DEFAULT_PUBSUB_TO_IOT_CORE = 'False'
 
 GG_CORE_NAME = os.environ.get("AWS_IOT_THING_NAME")
+GG_ROOT_CA_PATH = os.environ.get("GG_ROOT_CA_PATH")
 
 RESPONSE = "response"
 RESPONSE_FIELD_RID = "id"

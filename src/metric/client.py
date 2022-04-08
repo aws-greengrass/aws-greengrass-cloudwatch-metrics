@@ -4,7 +4,7 @@
 import logging
 
 import boto3
-from botocore import credentials, exceptions
+from botocore import credentials, exceptions, config
 from botocore.session import get_session
 from src import utils
 
@@ -19,7 +19,8 @@ class CloudWatchClient:
         session = get_session()
         if container_creds is not None:
             session._credentials = container_creds
-            self.client = boto3.Session(botocore_session=session).client('cloudwatch', region)
+            self.client = boto3.Session(botocore_session=session).client(
+                'cloudwatch', region, config=config.Config(proxies_config={'proxy_ca_bundle': utils.GG_ROOT_CA_PATH}))
         else:
             raise exceptions.CredentialRetrievalError(
                 provider=credentials.ContainerProvider.METHOD,
