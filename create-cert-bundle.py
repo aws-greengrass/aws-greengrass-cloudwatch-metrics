@@ -9,7 +9,7 @@ logger.addHandler(handler)
 
 if os.environ.get("HTTPS_PROXY") is None:
     exit()
-logger.info("Creating certificate bundle with proxy root CA, to be used by pip")
+logger.info("Creating certificate bundle with proxy root CA, and installing dependencies")
 try:
     import certifi
 
@@ -19,21 +19,17 @@ except ImportError:
     except Exception as e:
         logger.exception("Error creating certificate bundle with proxy root CA")
         exit()
+
+p1 = certifi.where()
+p2 = os.environ.get("GG_ROOT_CA_PATH")
+p3 = './ca-bundle.crt'
 try:
-    p1 = certifi.where()
-    p2 = os.environ.get("GG_ROOT_CA_PATH")
-    p3 = './ca-bundle.crt'
-    f1 = open(p1, 'r')
-    f2 = open(p2, 'r')
-    f3 = open(p3, 'a+')
-    f3.write(f1.read())
-    f3.write(f2.read())
-    f1.seek(0)
-    f2.seek(0)
-    f3.seek(0)
-    f1.close()
-    f2.close()
-    f3.close()
+    with open(p1, 'r') as f1, open(p2, 'r') as f2, open(p3, 'a+') as f3:
+        f3.write(f1.read())
+        f3.write(f2.read())
+        f1.seek(0)
+        f2.seek(0)
+        f3.seek(0)
 except Exception:
     logger.exception("Error creating certificate bundle with proxy root CA")
     exit()
