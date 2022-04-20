@@ -34,17 +34,17 @@ p1 = certifi.where()
 p2 = os.environ.get("GG_ROOT_CA_PATH")
 p3 = './ca-bundle.crt'
 try:
-    with open(p1, 'r') as f1, open(p2, 'r') as f2, open(p3, 'w') as f3:
-        f3.write(f1.read())
-        f3.write(f2.read())
+    with open(p1, 'r') as certify_root_ca, open(p2, 'r') as gg_root_ca, open(p3, 'w') as custom_cert_bundle:
+        custom_cert_bundle.write(certify_root_ca.read())
+        custom_cert_bundle.write(gg_root_ca.read())
 except Exception:
     logger.exception("Error creating certificate bundle with proxy root CA")
     sys.exit(1)
 try:
     from pip import main as pip
 
-    pip(['install', '--cert', './ca-bundle.crt', 'boto3', 'awsiotsdk', 'urllib3==1.26.9', '--user'])
+    pip(['install', '--cert', './ca-bundle.crt', 'boto3', 'awsiotsdk', 'urllib3==1.26.7', '--user'])
 except Exception:
     logger.exception(
-        "Error installing dependencies. Please set 'UseInstaller' to 'False' and pre-install component dependencies")
+        "Error installing dependencies. Please set 'UseInstaller' to 'False' and pre-install 'boto3', 'awsiotsdk' and 'urllib3==1.26.7'")
     sys.exit(1)
