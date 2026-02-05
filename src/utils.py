@@ -60,7 +60,7 @@ FIELD_DIMENSION_VALUE = "value"
 FIELD_METRIC_TIMESTAMP = "timestamp"
 FIELD_METRIC_UNIT = "unit"
 
-MAX_DIMENSIONS_PER_METRIC = 10
+MAX_DIMENSIONS_PER_METRIC = 30
 VALID_UNIT_VALUES = {'Seconds', 'Microseconds', 'Milliseconds', 'Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes',
                      'Terabytes',
                      'Bits', 'Kilobits', 'Megabits', 'Gigabits', 'Terabits', 'Percent', 'Count', 'Bytes/Second',

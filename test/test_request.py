@@ -124,10 +124,8 @@ class TestPutMetricRequest(object):
     def test_parse_request_fails_when_dimensions_exceed_limit(self):
         event = self.create_valid_request_with_all_fields()
         new_dimension = {'name': 'new_name', 'value': 'new_value'}
-        event['request']['metricData']['dimensions'].extend([new_dimension, new_dimension, new_dimension,
-                                                             new_dimension, new_dimension, new_dimension,
-                                                             new_dimension, new_dimension, new_dimension,
-                                                             new_dimension])
+        # Base event has 1 dimension, add 30 more to exceed limit of 30
+        event['request']['metricData']['dimensions'].extend([new_dimension] * 30)
 
         with pytest.raises(Exception) as error:
             PutMetricRequest(event)
