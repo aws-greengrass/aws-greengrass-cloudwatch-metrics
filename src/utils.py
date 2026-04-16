@@ -14,6 +14,7 @@ log_level_switcher = {
     "INFO" : logging.INFO,
     "DEBUG" : logging.DEBUG
 }
+
 log_level = log_level_switcher.get(os.environ.get("GG_CW_LOG_LEVEL"), logging.INFO)
 logger.setLevel(log_level)
 logger.addHandler(handler)
