@@ -35,7 +35,7 @@ if proxy_url is not None:
             sys.exit(1)
         try:
             subprocess.check_call(
-                [sys.executable, '-m', 'pip', 'install', '--cert', './ca-bundle.crt', 'boto3', 'awsiotsdk', 'urllib3>=1.26.7', '--user'])
+                [sys.executable, '-m', 'pip', 'install', '--cert', './ca-bundle.crt', 'boto3', 'awsiotsdk', 'urllib3>=1.26.7', '--user', '--break-system-packages'])
             sys.exit(0)
         except Exception:
             logger.exception(
@@ -46,7 +46,7 @@ if proxy_url is not None:
         logger.info("Installing 'boto3', 'awsiotsdk' and 'urllib3>=1.26.7'")
         try:
             subprocess.check_call(
-                [sys.executable, '-m', 'pip', 'install', 'boto3', 'awsiotsdk', 'urllib3>=1.26.7', '--user'])
+                [sys.executable, '-m', 'pip', 'install', 'boto3', 'awsiotsdk', 'urllib3>=1.26.7', '--user', '--break-system-packages'])
             sys.exit(0)
         except Exception:
             logger.exception(
@@ -55,7 +55,7 @@ if proxy_url is not None:
 
 logger.info("Installing 'boto3' and 'awsiotsdk'")
 try:
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'boto3', 'awsiotsdk', '--user'])
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'boto3', 'awsiotsdk', '--user', '--break-system-packages'])
 except Exception:
     logger.exception(
         "Error installing dependencies. Please set 'UseInstaller' to 'False' and pre-install 'boto3' and 'awsiotsdk'")
