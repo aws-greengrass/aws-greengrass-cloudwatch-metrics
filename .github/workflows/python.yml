@@ -7,6 +7,11 @@ on:
   pull_request:
     branches: '*'
 
+# Read-only token; commitlint lists the PR's commits, so it also needs pull-requests: read.
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,3 +41,22 @@ jobs:
       - name: Test with pytest
         run: |
           python -m pytest
+
+  # The job above uses setup-python, which is not externally managed; this one runs installer.py on each distro's own Python.
+  installer-on-os-python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ['debian:trixie', 'debian:bookworm', 'ubuntu:24.04', 'ubuntu:22.04', 'ubuntu:20.04']
+    container: ${{ matrix.image }}
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OS Python
+        run: apt-get update && apt-get install -y python3 python3-pip sudo
+      - name: Run installer as Greengrass does (non-root component user, non-login sh)
+        run: |
+          useradd -m ggc_user
+          sudo -n -E -H -u ggc_user -- sh -c "cd ~ && python3 -u $GITHUB_WORKSPACE/installer.py"
+          sudo -n -E -H -u ggc_user -- sh -c "python3 -c 'import boto3, awsiot'"
